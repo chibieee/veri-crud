@@ -1,0 +1,21 @@
+.list-container {
+    padding: 5% 10%;
+    .list-container-header {
+        display: flex;
+        justify-content: space-between;
+    }
+    .MuiList-root {
+        width: 100%;
+        max-width: unset;
+        li {
+            border: .5px solid #D5DFE9;
+            margin-bottom: 12px;
+            > div {
+                padding: 24px 21px;
+            }
+            button.delete {
+                margin-left: 8px;
+            }
+        }
+    }
+}

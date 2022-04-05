@@ -7,6 +7,7 @@ import ListItemText from '@mui/material/ListItemText';
 import Checkbox from '@mui/material/Checkbox';
 import IconButton from '@mui/material/IconButton';
 import EditIcon from '@mui/icons-material/Edit';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 
 import { Modal } from '../ItemModal/ItemModal';
 import "./ShoppingList.scss";
@@ -64,12 +65,17 @@ export default function ShoppingList() {
             <ListItem
                 key={value}
                 secondaryAction={
-                <IconButton edge="end" aria-label="comments">
+                  <>
+                <IconButton edge="end" aria-label="edit">
                     <EditIcon onClick={() => {
                       openModal()
                       modalEdit()
                     }} />
                 </IconButton>
+                <IconButton className="delete" edge="end" aria-label="delete">
+                    <DeleteOutlineIcon />
+                </IconButton>
+                </>
                 }
                 disablePadding
             >
