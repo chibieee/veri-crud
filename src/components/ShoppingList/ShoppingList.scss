@@ -1,5 +1,6 @@
 .list-container {
     padding: 5% 10%;
+    min-height: 80vh;
     .list-container-header {
         display: flex;
         justify-content: space-between;
@@ -15,6 +16,27 @@
             }
             button.delete {
                 margin-left: 8px;
+            }
+            &.completed {
+                text-decoration: line-through;
+            }
+        }
+    }
+    .noitems-container {
+        border-radius: 5px;
+        border: 1px solid #C6C6C6;
+        height: 290px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        .inner-container {
+            text-align: center;
+            h3 {
+                color: #87898C;
+                font-family: 'Nunito', sans-serif;
+            }
+            button {
+                margin-top: 24px;
             }
         }
     }

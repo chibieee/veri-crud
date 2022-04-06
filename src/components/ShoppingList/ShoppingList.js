@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
@@ -9,28 +9,23 @@ import IconButton from '@mui/material/IconButton';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 
+import ShoppingItemsService from '../../services/firebaseService';
 import { Modal } from '../ItemModal/ItemModal';
 import "./ShoppingList.scss";
 
 export default function ShoppingList() {
   const [modalDisplay, setModalDisplay] = useState(false);
+  const [modalId, setModalId] = useState("");
   const [modalTitle, setModalTitle] = useState("");
-  const [checked, setChecked] = React.useState([0]);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [items, setItems] = useState([]);
 
-  const handleToggle = (value) => () => {
-    const currentIndex = checked.indexOf(value);
-    const newChecked = [...checked];
-
-    if (currentIndex === -1) {
-      newChecked.push(value);
-    } else {
-      newChecked.splice(currentIndex, 1);
-    }
-
-    setChecked(newChecked);
+  const handleToggle = (value, idx) => {
+   console.log(value, idx)
   };
 
-  const openModal = () => {
+  const openModal = (id) => {
+    setModalId(id);
     setModalDisplay(true);
   }
 
@@ -44,10 +39,33 @@ export default function ShoppingList() {
 
   const closeModal = () => {
     setModalDisplay(false);
+    setIsDeleting(false);
+    getItems();
   }
+
+  const modalDeleting = () => {
+    setIsDeleting(true);
+  }
+
+  const handleDelete = async (id) => {
+    await ShoppingItemsService.deleteItem(id);
+    closeModal();
+    getItems();
+  }
+
+  const getItems = async () => {
+    const data = await ShoppingItemsService.getAllItems();
+    setItems(data.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
+  }
+
+  useEffect(() => {
+    getItems();
+  }, [])
 
   return (
     <div className="list-container">
+        {items.length > 0 &&
+        <>
         <div className="list-container-header">
             <h2>Your Items</h2>
             <button onClick={() => {
@@ -58,44 +76,77 @@ export default function ShoppingList() {
             </button>
         </div>
         <List sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}>
-        {[0, 1, 2, 3].map((value) => {
-            const labelId = `checkbox-list-label-${value}`;
+        {items.map((value, idx) => {
+            const labelId = `checkbox-list-label-${value.id}`;
 
             return (
             <ListItem
-                key={value}
+                className={value.completed ? 'completed' : ''}
+                key={value.id}
                 secondaryAction={
                   <>
-                <IconButton edge="end" aria-label="edit">
-                    <EditIcon onClick={() => {
-                      openModal()
-                      modalEdit()
-                    }} />
+                <IconButton 
+                  edge="end"
+                  aria-label="edit" 
+                  onClick={() => {
+                    openModal(value.id)
+                    modalEdit()
+                  }}>
+                    <EditIcon />
                 </IconButton>
-                <IconButton className="delete" edge="end" aria-label="delete">
+                <IconButton
+                  className="delete"
+                  edge="end"
+                  aria-label="delete"
+                  onClick={() => {
+                    modalDeleting();
+                    openModal(value.id);
+                  }}
+                >
                     <DeleteOutlineIcon />
                 </IconButton>
                 </>
                 }
                 disablePadding
             >
-                <ListItemButton role={undefined} onClick={handleToggle(value)} dense>
+                <ListItemButton
+                  role={undefined}
+                  onClick={() => {
+                    handleToggle(value, idx)
+                  }}
+                  dense
+                >
                 <ListItemIcon>
                     <Checkbox
                     edge="start"
-                    checked={checked.indexOf(value) !== -1}
+                    checked={value.completed}
                     tabIndex={-1}
                     disableRipple
                     inputProps={{ 'aria-labelledby': labelId }}
                     />
                 </ListItemIcon>
-                <ListItemText id={labelId} primary={`Line item ${value + 1}`} />
+                <ListItemText id={labelId} primary={`${value.title}`} secondary={`${value.description}`}/>
                 </ListItemButton>
             </ListItem>
             );
         })}
         </List>
-        {modalDisplay && <Modal modalTitle={modalTitle} closeModal={closeModal} />}
+        </>
+        }
+        {items.length === 0 && 
+          <div className="noitems-container">
+              <div className="inner-container">
+                <h3>Your shopping list is empty :(</h3>
+                <button onClick={() => {
+                  openModal()
+                  modalAdd()
+                }}>
+                  Add your first item
+                </button>
+              </div>
+          </div>
+        }
+        {modalDisplay && <Modal modalId={modalId} modalTitle={modalTitle} closeModal={closeModal} isDeleting={isDeleting} handleDelete={handleDelete} />}
     </div>
   );
 }

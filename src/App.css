@@ -17,6 +17,10 @@ button {
   color: #fff;
   border-radius: 4px;
   cursor: pointer;
+  transition: all .3s ease-in-out;
+}
+button:hover {
+  background-color: #2A323C;
 }
 button.cancel {
   padding: 0;
