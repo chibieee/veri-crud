@@ -20,8 +20,19 @@ export default function ShoppingList() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [items, setItems] = useState([]);
 
-  const handleToggle = (value, idx) => {
-   console.log(value, idx)
+  const handleToggle = async (value, idx) => {
+   const updatedItem = {
+    title: value.title,
+    description: value.description,
+    amount: value.amount,
+    completed: value.completed ? false : true,
+    }
+    try {
+        await ShoppingItemsService.updateItem(value.id, updatedItem);
+    } catch(err) {
+        console.log(err);
+    }
+    getItems();
   };
 
   const openModal = (id) => {
